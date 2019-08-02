@@ -31,13 +31,11 @@
 #Differentially expressed genes were identified using DESeq2 version 1.16.1 [74], using untransformed expression. Genes with more than one read across all samples within a contrast were retained. Additional filtering of genes with low mean read counts was automatically applied by DESeq2. For each contrast, differentially expressed genes with BH-adjusted P-values <0.01 were identified. Log2 fold change in gene expression was plotted against the mean of read counts normalized by library size for each gene in MA plots. A Bayesian method implemented in DESeq2 was used to moderate the log2 fold changes obtained for genes with low or variable expression levels. Up-regulated and down-regulated genes in taf4b-1 were evaluated for enrichment of genes up-regulated in wild type meiocytes compared to leaves (BH-adjusted P<0.01) using the hypergeometric distribution. Genes representing the intersection of those down-regulated, or up-regulated, in taf4b-1 (BH-adjusted P<0.01) and up-regulated in meiocytes (BH-adjusted P<0.01), were analyzed for gene ontology (GO) term enrichment. Gene sets were analyzed for over-representation of “biological process” GO terms relative to their representation among all genes in the TAIR10 annotation, using topGO (version 2.26.0) [75]. Significantly enriched terms were identified by applying the default topGO algorithm coupled with the Fisher’s exact test statistic (P≤0.05). 
 
 # Usage:
-# ./DESeq2_sample_exploration.R TEcount multi 'wt_leaf_RNAseq_Rep1,wt_leaf_RNAseq_Rep2,wt_leaf_RNAseq_Rep3,wt_meiocyte_RNAseq_Rep1,wt_meiocyte_RNAseq_Rep2,wt_meiocyte_RNAseq_Rep3' 'wt_leaf_Rep1,wt_leaf_Rep2,wt_leaf_Rep3,wt_meiocyte_Rep1,wt_meiocyte_Rep2,wt_meiocyte_Rep3'
+# ./DESeq2_sample_exploration.R TEcount multi 'wt_meiocyte_RNAseq_Rep1,wt_meiocyte_RNAseq_Rep2,wt_meiocyte_RNAseq_Rep3,wt_leaf_RNAseq_Rep1,wt_leaf_RNAseq_Rep2,wt_leaf_RNAseq_Rep3'
 
 #tool <- "TEcount"
 #mode <- "multi"
-#prefixes <- unlist(strsplit("wt_leaf_RNAseq_Rep1,wt_leaf_RNAseq_Rep2,wt_leaf_RNAseq_Rep3,wt_meiocyte_RNAseq_Rep1,wt_meiocyte_RNAseq_Rep2,wt_meiocyte_RNAseq_Rep3",
-#                            split = ","))
-#libNames <- unlist(strsplit("wt_leaf_Rep1,wt_leaf_Rep2,wt_leaf_Rep3,wt_meiocyte_Rep1,wt_meiocyte_Rep2,wt_meiocyte_Rep3",
+#prefixes <- unlist(strsplit("wt_meiocyte_RNAseq_Rep1,wt_meiocyte_RNAseq_Rep2,wt_meiocyte_RNAseq_Rep3,wt_leaf_RNAseq_Rep1,wt_leaf_RNAseq_Rep2,wt_leaf_RNAseq_Rep3",
 #                            split = ","))
 
 args <- commandArgs(trailingOnly = T)
@@ -45,8 +43,9 @@ tool <- args[1]
 mode <- args[2]
 prefixes <- unlist(strsplit(args[3],
                             split = ","))
-libNames <- unlist(strsplit(args[4],
-                            split = ","))
+libNames <- sub(pattern = "_RNAseq",
+                replacement = "",
+                x = prefixes)
 
 library(DESeq2)
 print(packageVersion("DESeq2"))
@@ -137,8 +136,8 @@ trans_df <- bind_rows(
 #                                  " transformed counts")
 
 plot_transformed_counts <- ggplot(trans_df,
-                                  aes(x = `wt_leaf_Rep1`,
-                                      y = `wt_leaf_Rep2`)) +
+                                  aes(x = `wt_meiocyte_Rep1`,
+                                      y = `wt_meiocyte_Rep2`)) +
                            geom_hex(bins = 80) +
                            coord_fixed() +
                            facet_grid(. ~ transformation) +
@@ -215,7 +214,8 @@ PCAggplot_rlog <- ggplot(PCAplot_rlog_data,
                              shape = condition,
                              colour = sample)) +
                   geom_point(size = 3) +
-                  scale_shape_manual(values = c(16, 17)) +
+                  guides(colour = guide_legend(order = 2),
+                         shape = guide_legend(order = 1)) +
                   xlab(paste0("PC1: ", percentVar[1], "% variance")) +
                   ylab(paste0("PC2: ", percentVar[2], "% variance")) +
                   theme(plot.margin = grid::unit(c(0,0,0,0), "mm")) +
@@ -236,7 +236,8 @@ MDSplot_rlog <- ggplot(mds, aes(x = `1`, y = `2`,
                                 shape = condition,
                                 colour = sample)) +
                   geom_point(size = 3) +
-                  scale_shape_manual(values = c(16, 17)) +
+                  guides(colour = guide_legend(order = 2),
+                         shape = guide_legend(order = 1)) +
                   theme(plot.margin=grid::unit(c(0,0,0,0), "mm")) +
                   theme_classic() +
                   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1)) +
@@ -251,7 +252,8 @@ MDSplot_Pois <- ggplot(mdsPois, aes(x = `1`, y = `2`,
                                     shape = condition,
                                     colour = sample)) +
                   geom_point(size = 3) +
-                  scale_shape_manual(values = c(16, 17)) +
+                  guides(colour = guide_legend(order = 2),
+                         shape = guide_legend(order = 1)) +
                   theme(plot.margin=grid::unit(c(0,0,0,0), "mm")) +
                   theme_classic() +
                   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1)) +
