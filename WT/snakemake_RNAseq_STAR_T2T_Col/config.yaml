@@ -1,0 +1,28 @@
+SAMPLES: ["WT_leaf_RNAseq_Rep1",
+          "WT_leaf_RNAseq_Rep2",
+          "WT_leaf_RNAseq_Rep3",
+          "WT_meiocyte_RNAseq_Rep1",
+          "WT_meiocyte_RNAseq_Rep2",
+          "WT_meiocyte_RNAseq_Rep3"]
+THREADS: 48
+FILTER:
+  fastqc:
+      contaminants: "adapters/contaminants_list_fastqc.txt"
+  trimmomatic:
+      ILLUMINACLIP: "ILLUMINACLIP:adapters/cat_all_and_TruSeq_Single_Indexes.fa:2:30:10"
+      SLIDINGWINDOW: "SLIDINGWINDOW:4:15"
+      MINLEN: "MINLEN:36"
+MAPPING:
+      reference: "data/index/T2T_Col"
+      alignments: 100 # STAR option --outFilterMultimapNmax
+      anchor: 100 # STAR option --winAnchorMultimapNmax
+      mismatches: 2  # STAR option --outFilterMismatchNmax
+      MAPQboth: 3
+      MAPQunique: 255
+      sortMemory: "4G"
+COVERAGE:
+      normalizeUsing: "BPM"
+      ignoreForNormalization: "ChrM ChrC" # Reference genome-specific parameter
+      binSize: 1
+      genomeBinSize: 10000
+      genomeBinName: "10kb"
